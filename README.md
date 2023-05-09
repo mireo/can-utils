@@ -60,7 +60,7 @@ Usage
 
 custom_dbc dbc_impl; // custom class that implements your logic 
 
-bool success = can::parse_dbc(dbc_content, std::ref(dbc_impl)); // parses the DBC and invokes callbacks on dbc_impl for every line
+bool success = can::parse_dbc(dbc_content, std::ref(dbc_impl)); // parses the DBC
 
 // dbc_impl is now populated by the parser and can be used
 ```
