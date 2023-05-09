@@ -6,15 +6,15 @@ Once a frame_packet is ready, the example just prints it to the console.
 
 ### Timestamp explanation
 
-CAN messages with IDs 4 and 6 (part of the `Energy` group) are packaged together, once every 500ms. 
+CAN messages with IDs 4 and 6 (part of the `Energy` group) are packaged one after another, once every 500ms. 
 
-Can messages with IDs 2, 3, 5, and 7 (part of the `GPS` group) are packaged together, once every 600ms.
+Can messages with IDs 2, 3, 5, and 7 (part of the `GPS` group) are packaged one after another, once every 600ms.
 
 A frame packet is produced every 2000ms, ready to be sent over the network, or stored locally. These frequencies were set in `example.dbc`.
 
 The signal values printed below are raw decoded bytes, and not scaled by the signal's factor or offset.
 
-# Sample output:
+# Example output:
 
 ```cmd
 Parsed DBC in 1ms

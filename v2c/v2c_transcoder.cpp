@@ -72,7 +72,7 @@ void tx_group::publish(can_time tp, frame_packet& fp) {
 		if (a.message_id != b.message_id) // primarily by message_ids
 			return a.message_id < b.message_id;
 		return a.stamp > b.stamp; // secondarily by timestamp, descending
-		});
+	});
 
 	int64_t prev_id = 0;
 	for (const auto& smsg : _msg_clumps) {

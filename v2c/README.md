@@ -1,36 +1,32 @@
 # V2C Transcoder 
 
-V2CTranscoder is a transparent middleware tool for aggregating and grouping CAN data frames. 
+V2CTranscoder is a middleware tool that aggregates and groups CAN data frames. 
+It is designed to run on a device connected to a CAN bus that sends aggregated frames to a remote server or stores it locally.
 
-It takes CAN frames as input and outputs aggregated CAN frames, which are more suitable for sending over the network.
+The transcoder takes CAN frames as input, aggregates their values, and encodes them back into CAN frames. 
+The resulting frames are more suitable for sending over the network due to their reduced frequency.
+Frames received by the server will appear identical to frames sent over CAN, making the tool transparent from the server's perspective.
 
-It's meant to be run on a device connected to a CAN bus, that can send the aggregated data to a remote server, or store it locally.
-
-## Motivation
-
-- filtering and aggregating CAN data is a common problem
-- vehicles produce too much CAN data too quickly to send over an unreliable network
-- some data is more important than other data
-- some messages are similiar in meaning and should be sent together
-- some messages change slowly and can be sent less frequently
-- some messages change quickly and should be sent more frequently
-- v2c-transcoder serves to transparently aggregate and group CAN data frames 
+The tool can be configured to send different messages at different frequencies, or to send the average value of a signal over a time window.
 
 # Usage
 
-Initialize a `v2c_transcoder` and call its `transcode(t, frame)` member method with frames read from the CAN socket. 
+To use V2CTranscoder, initialize `v2c_transcoder` and call its `transcode(t, frame)` member method with frames read from the CAN socket. 
 
 ```cpp
-	can_frame frame = read_frame();
+can_frame frame = read_frame();
 
-	auto fp = transcoder.transcode(std::chrono::system_clock::now(), frame);
+auto fp = transcoder.transcode(std::chrono::system_clock::now(), frame);
 ```
 
 The resulting `fp` is of the type can::frame_packet, defined in [frame_packet.h](can/frame_packet.h), and is a serialized list of CAN frames with timestamp information.
 
 The frame packet will be empty except when more than `V2CTxTime` milliseconds have passed since the last transmission.
 
-A `frame_packet` can be iterated on to get the frames and their timestamps:
+## frame_packet interface
+
+A `frame_packet` can be iterated on to get raw frames with their timestamps:
+
 ```cpp
 for (const auto& [ts, frame] : fp) {
 	// use frame.can_id, frame.data
@@ -39,8 +35,7 @@ for (const auto& [ts, frame] : fp) {
 
 `frame` is of the type `can_frame`, defined in [can_kernel.h](can/can_kernel.h), and `ts` is a `std::chrono::system_clock::timepoint`.
 
-## frame_packet
-
+The `frame_packet` class offers the following methods to access its raw data, in order to send the bytes over the network:
 
 ```cpp
 const uint8_t* data_begin() const {
@@ -50,9 +45,13 @@ const uint8_t* data_begin() const {
 const uint8_t* data_end() const {
 	return _buff.data() + _buff.size();
 }
+
+std::vector<uint8_t> release() {
+		return std::move(_buff);
+}
 ```
 
-On the server side, the frame packet can be constructed directly from a serialized buffer of bytes:
+On the server side, the same `frame_packet` can be recreated directly from a byte buffer as such:
 
 ```cpp
 std::vector<uint8_t> buffer(buffer_size);
@@ -68,11 +67,11 @@ All V2C configuration is done in the input DBC file, in DBC syntax, using attrib
 
 ## Transmission
 
-```
+```py
 EV_ V2CTxTime: 0 [0|60000] "ms" 2000 1 DUMMY_NODE_VECTOR1 V2C;
 ```
 
-The 'V2CTxTime' environmental variable is used to set the time between two transmissions. Each transmission contains all aggregated frames since the last transmission.
+The `V2CTxTime` environmental variable is used to set the time between two transmissions. Each transmission contains all aggregated frames since the last transmission, in one `frame_packet`.
 
 ## Grouping
 
@@ -80,18 +79,20 @@ Groups are defined by a set of message ids and a frequency.
 
 The messages in a group are treated as a single unit: if a single message in a group does not arrive over the CAN, the whole group is not sent.
 
-For example, it 
-
 This guarantees that there is no outdated data being sent. 
 
-To define a new group, add a new environmental variable with the following format: (TODO: bad sentence)
+To define a new group, add a new environmental variable with the `GroupTxFreq` suffix.
 
-A groupname has `GroupTxFreq' as its suffix and has a sending period in milliseconds:
+The values of these variables define the sending period of that group, in milliseconds. (600ms, 500ms)
+
+The sending frequency (2000ms) doesn't have to match messages aggregation frequencies.
 
 ```py
 EV_ GPSGroupTxFreq: 0 [0|60000] "ms" 600 11 DUMMY_NODE_VECTOR1 V2C;
 EV_ EnergyGroupTxFreq: 0 [0|60000] "ms" 500 13 DUMMY_NODE_VECTOR1 V2C;
 ```
+
+For signals that change slowly over time, such as from temperature sensors, it is useful to send them less frequently.
 
 To add a message to a group, set its "TxGroupFreq" to the groupname:
 
@@ -105,14 +106,15 @@ BA_ "TxGroupFreq" BO_ 4 "EnergyGroupTxFreq";
 BA_ "TxGroupFreq" BO_ 6 "EnergyGroupTxFreq";
 ```
 
-This excerpt assigns messages `GPSLatLong`, `GPSAltitude`, `GPSSpeed` and `PowerState` to the `GPSGroupTxFreq` group, and messages `SOC`, `BatteryCurrent` to the `EnergyGroupTxFreq` group.
+The attributes above assign messages `GPSLatLong`, `GPSAltitude`, `GPSSpeed` and `PowerState` to the `GPSGroupTxFreq` group, 
+and messages `SOC` and `BatteryCurrent` to the `EnergyGroupTxFreq` group.
 
 ## Aggregating
 
 Two aggregators are supported: 
 
-* `LAST` is used to send the most recent value of a signal within a group. This is the **default**.
-* `AVG` is used to send the average value of a signal within a group.
+* `LAST` is used to send the most recent value of the signal. This is the **default**.
+* `AVG` is used to send the average value of the signal.
 
 To set a signal's aggregation type, set its "AggType" attribute to either `LAST` or `AVG`:
 
@@ -129,4 +131,14 @@ BA_ "AggType" SG_  6 SmoothBattCurrent "AVG";
 BA_ "AggType" SG_  6 BattVoltage "AVG";
 ```
 
+The aggregation is done in time windows that match the group's sending period. No single CAN measurement is sent or aggregated more than once.
 
+For `example.dbc` described above, `transcoder.transcode(ts, frame)` will return a new `frame_packet` every 2000ms, 
+which will contain up to four `GPS` groups and up to four `Energy` groups, ordered chronologically.
+Each group will contain an aggregated `can_frame` for each message in that group.
+
+See [example README](example/README.md) for a detailed look at output timestamps.
+
+## Filtering
+
+To filter out a signal, simply do not include it in any group. Only signals that are a part of a group are aggregated and appended to the resulting `frame_packet`.

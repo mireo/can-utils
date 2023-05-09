@@ -22,30 +22,34 @@ Instead, it calls user-defined callbacks for each line of the file.
 
 Each callback receives the values parsed from the current line as arguments.
 
-The user can then use these values to create their own data structures or to directly perform any other action.
+The user should then use these values to create their own data structures or to directly perform any other action.
+
+A callback has the form of:
+
+```cpp
+inline void tag_invoke(
+	def_<callback_name>_cpo, your_class& this_,
+	(callback_arguments ...)
+) {
+	// your logic here
+}
+```
 
 ## Customization Example
 
 The following example shows how to create a custom class that stores the names of signals for each message id using the parsed DBC data.
 
-To do this, we need to implement two callbacks: `def_bo_cpo` and `def_sg_cpo`. They can access our custom class `custom_dbc` through the `this_` argument.
+To do this, we need to implement only one callback: `def_sg_cpo`. It has access to `custom_dbc` through the `this_` argument.
 
 ```cpp
 
 struct custom_dbc {
-	std::map<uint32_t, std::vector<std::string>> sigs;
+	std::map<uint32_t, std::vector<std::string>> sigs; // map of message id to vector of signal names
 };
 
 namespace can {
 
 // tag_invokes must be in the same namespace as can::dbc_parser 
-
-inline void tag_invoke(
-	def_bo_cpo, custom_dbc& this_,
-	uint32_t msg_id, std::string msg_name, size_t msg_size, size_t transmitter_ord
-) {
-	this_.sigs[msg_id] = {}; // initialize an empty vectore for each message_id
-}
 
 inline void tag_invoke(
 	def_sg_cpo, custom_dbc& this_,
@@ -68,7 +72,7 @@ The parser is highly performant. It can parse a 1 MB DBC file in less than 10ms 
 
 ### See Also:
 
-For a complete example of a custom class that implements these callbacks, see [v2c_transcoder.h](../../include/v2c/v2c_transcoder.h). It includes CAN frame encoding and decoding.
+For a complete example of a custom class that implements these callbacks, see [v2c_transcoder.h](../../include/v2c/v2c_transcoder.h). It supports CAN frame encoding and decoding.
 
 For a header file that contains all the callback signatures that you can copy and paste, see [parser_template.h](parser_template.h).
 
