@@ -1,5 +1,6 @@
 C++ DBC Parser and CAN Transcoder
-=============================
+=================================
+[![License](https://img.shields.io/badge/license-BSD-blue.svg)](
 
 Introduction
 ------------
@@ -9,8 +10,6 @@ This repository is motivated by a lack of suitable open-source DBC parsers in C+
 They are often plagued by issues such as being slow, bloated, or supporting only a fraction of the full DBC standard.
 
 We provide a fast, lightweight, and fully-featured DBC parser.
-
----
 
 The project also contains `v2c_transcoder.cpp`, showing how such a parser can be used for [IOT telemetry](https://iotatlas.net/en/patterns/telemetry/).
 
@@ -51,9 +50,9 @@ The example program parses [example.dbc](example/example.dbc), generates random 
 Usage
 -----
 
-- [DBC parser](dbc/README.md)
-- [V2C Transcoder](v2c/README.md)
-- [example.cpp](example/README.md)
+- [Example](example/README.md)
+- [DBC Parser](dbc/README.md)
+- [CAN Transcoder](v2c/README.md)
 
 License
 -------
@@ -75,6 +74,8 @@ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWE
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Contact us
-----------
+---------- 
 
-[<img height="200" alt="Mireo" src="https://www.mireo.com/img/assets/mireo-logo.svg">](https://www.mireo.com/spacetime)
+<p align="center">
+<a href="https://www.mireo.com/spacetime"><img height="200" alt="Mireo" src="https://www.mireo.com/img/assets/mireo-logo.svg"></img></a>
+</p>
