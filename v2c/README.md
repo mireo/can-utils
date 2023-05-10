@@ -4,7 +4,7 @@ V2CTranscoder is a middleware tool that aggregates and groups CAN data frames.
 It is designed to run on a device connected to a CAN bus that sends aggregated frames to a remote server or stores them locally.
 
 The transcoder takes CAN frames as input, aggregates their values, and encodes them back into CAN frames. 
-The resulting frames are more suitable for sending over the network becfause of their reduced frequency.
+The resulting frames are more suitable for sending over the network because of their reduced frequency.
 Frames received by the server will appear identical to frames sent over CAN, making the tool transparent from the server's perspective.
 
 The tool can be configured to send different messages at different frequencies or to send the average value of a signal over a time window.
@@ -135,7 +135,7 @@ BA_ "AggType" SG_  6 BattVoltage "AVG";
 The aggregation is done in time windows that match the group's sending period. No single CAN measurement is sent or aggregated more than once.
 
 For `example.dbc` described above, `transcoder.transcode(ts, frame)` returns a new `frame_packet` every 2000 ms
-containing  up to four `GPS` groups and up to four `Energy` groups, in chronological order.
+containing up to four `GPS` groups and up to four `Energy` groups, in chronological order.
 Each group contains an aggregated `can_frame` for each message in that group.
 
 See [example README](example/README.md) for a detailed look at output timestamps.
@@ -143,3 +143,30 @@ See [example README](example/README.md) for a detailed look at output timestamps
 ## Filtering
 
 To filter out a signal, simply do not include it in any group. Only signals that are part of a group are aggregated and appended to the resulting `frame_packet`.
+
+## Multiplexing
+
+Messages are often multiplexed by a switch that determines which signal is currently active:
+
+```py
+BO_ 10 MuxedMessage: 4 DUMMY_NODE_VECTOR1
+ SG_ MuxSwitch M : 0|8@1+ (1,0) [0|255] "" Receiver
+ SG_ Signal1 m1 : 8|8@1+ (2,0) [0|510] "" Receiver
+ SG_ Signal2 m2 : 8|8@1+ (0.5,0) [0|127.5] "" Receiver
+ SG_ Signal3 m3 : 8|8@1+ (1,0) [0|255] "" Receiver
+ Sg_ Signal4 : 16|16@1+ (0.05,0) [-1000|1000] "" Receiver
+```
+
+Signals 1 to 3 all occupy the same bit range, and are multiplexed by `MuxSwitch`.
+
+This means that if we want to calculate the average of all three signals separately, their average values would not fit into a single `can_frame`.
+
+To solve this problem, the final `frame_packet` contains a separate `can_frame` for each multiplexed signal value.
+
+For the above message, three `can_frames` are generated, each encoded with one of the multiplexed signals (and the corresponding mux switch value).
+
+`Signal4` will be aggregated as usual, from every input `can_frame` regardless of its mux switch value.
+
+To avoid duplication on the server side, `Signal4` is encoded only in the first `can_frame`, 
+and the other frames are marked as duplicates by setting their `frame.__res0` byte to `1`.
+This is a reserved padding byte not used for anything else.
