@@ -19,7 +19,7 @@ can_frame frame = read_frame();
 auto fp = transcoder.transcode(std::chrono::system_clock::now(), frame);
 ```
 
-The result `fp` is of the type `can::frame_packet`, defined in [frame_packet.h](can/frame_packet.h), and is a serialized list of CAN frames with timestamp information.
+The result `fp` is of the type `can::frame_packet`, defined in [frame_packet.h](/can/frame_packet.h), and is a serialized list of CAN frames with timestamp information.
 
 The frame packet is unless more than `V2CTxTime` milliseconds have passed since the last transmission.
 
@@ -33,7 +33,7 @@ for (const auto& [ts, frame] : fp) {
 }
 ```
 
-`frame` is of type `can_frame`, defined in [can_kernel.h](can/can_kernel.h), and `ts` is a `std::chrono::system_clock::timepoint`.
+`frame` is of type `can_frame`, defined in [can_kernel.h](/can/can_kernel.h), and `ts` is a `std::chrono::system_clock::timepoint`.
 
 The class `frame_packet` provides the following methods for accessing its raw data, to send the bytes over the network:
 
@@ -170,3 +170,9 @@ For the above message, three `can_frames` are generated, each encoded with one o
 To avoid duplication on the server side, `Signal4` is encoded only in the first `can_frame`, 
 and the other frames are marked as duplicates by setting their `frame.__res0` byte to `1`.
 This is a reserved padding byte not used for anything else.
+
+## DBC Parser Integration
+
+The transcoder only has to use six different `tag_invokes` for DBC parsing and data structure initialization.
+
+The short parsing functions can be found at the end of [v2c_transcoder.h](v2c_transcoder.h).
