@@ -42,9 +42,9 @@ Usage
 -----
 
 ### Example
-- [Full documentation here](example/README.md)
+- [Full source here](example/example.cpp)
 
-Build and run without any command line arguments:
+Build, then run without any command line arguments:
 
 ```sh
 $ ./can_example
@@ -80,6 +80,8 @@ New frame_packet (from 2121812 frames):
   BattVoltage: 32731
   ...
 ```
+
+The signal values are raw decoded bytes, not scaled by the signal's factor or offset.
 
 ___
 
