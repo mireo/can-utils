@@ -26,17 +26,17 @@ can_frame generate_frame() {
 	return frame;
 }
 
-void print_frames(const can::frame_packet& fp, can::v2c_transcoder& transcoder) {
+void print_frames(const can::frame_packet& fp, can::v2c_transcoder& transcoder, int32_t frame_counter) {
 	using namespace std::chrono;
 
-	std::cout << "New frame packet:" << std::endl;
+	std::cout << "New frame_packet (from " << frame_counter << " frames):" << std::endl;
 
 	for (const auto& [ts, frame] : fp) {
 		auto frame_data = *(int64_t*)frame.data;
 		auto t = duration_cast<milliseconds>(ts.time_since_epoch()).count() / 1000.0;
 
 		std::cout << std::fixed
-			<< " t: " << t << "s, can_id: " << frame.can_id << std::endl;
+			<< " can_frame at t: " << t << "s, can_id: " << frame.can_id << std::endl;
 
 		auto msg = transcoder.find_message(frame.can_id);
 		for (const auto& sig : msg->signals(frame_data))
@@ -57,9 +57,12 @@ int main() {
 
 	std::cout << "Parsed DBC in " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
 
+	int32_t frame_counter = 0;
+
 	while (true) {
 		// Simulate receiving a frame from CAN bus
 		can_frame frame = generate_frame();
+		frame_counter++;
 
 		auto fp = transcoder.transcode(std::chrono::system_clock::now(), frame);
 		
@@ -69,7 +72,8 @@ int main() {
 		// Send the aggregated frame_packet to a remote server, store it locally, or process it.
 		// This example just prints it to stdout.
 
-		print_frames(fp, transcoder);
+		print_frames(fp, transcoder, frame_counter);
+		frame_counter = 0;
 	}
 
 	return 0;
