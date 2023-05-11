@@ -16,15 +16,15 @@ bool success = can::parse_dbc(dbc_content, std::ref(dbc_impl)); // parses the DB
 // dbc_impl is now populated by the parser and can be used
 ```
 
-This parser does not generate any classes or structs from the DBC file by itself.
+This parser does not generate any classes or structs from the DBC file. Instead, it calls user-defined callbacks for each line of the input DBC file. Callbacks receive the values parsed from the current line as arguments.
 
-Instead, it calls user-defined callbacks for each line of the file.
+Users should use values provided in callback arguments to create their own data structures or directly perform any other required action.
 
-Each callback receives the values parsed from the current line as arguments.
+In most cases, a CAN DBC file is used to configure the behavior of an edge node participating in CAN. In that sense, a DBC file is a configuration file that describes the semantics of CAN messages and the overall structure and roles of nodes in CAN.
 
-The user should then use these values to create their own data structures or to directly perform any other action.
+With DBC being a configuration file, it seems more natural to parse a DBC file and configure a CAN node without using a bunch of intermediate structures like AST or C++ structures that restate DBC information in a C++ manner just to extract pieces of information from them once again to configure CAN node. Therefore, direct parsing and "interpreting" values could be a better option for most CAN DBC use cases.
 
-A callback has the form of:
+A parser callback has the form of:
 
 ```cpp
 inline void tag_invoke(
