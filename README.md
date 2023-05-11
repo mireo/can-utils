@@ -1,15 +1,13 @@
-C++ DBC Parser and CAN Transcoder
+C++ CAN utilities, including fully compliant CAN DBC C++ parser
 =================================
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
 Introduction
 ------------
 
-This repository is motivated by a lack of suitable open-source DBC parsers in C++.
+This repository contains several CAN (Controller Area Network) C++ utilities which could simplify collecting, decoding, transcoding and transferring CAN messages to cloud.
 
-We provide a fast, lightweight, and fully-featured DBC parser.
-
-The project also contains a CAN transcoder, showing how the parser can be used for [IOT telemetry](https://iotatlas.net/en/patterns/telemetry/).
+Most of the code in the repository is designed to run on an edge device (for example, embedded telemetry device). However, utilities like CAN DBC parser or CAN frame packet buffer can also be used on server side, thus providing some of the essential tools in the [IOT telemetry](https://iotatlas.net/en/patterns/telemetry/) ecosystems.
 
 Features
 --------
