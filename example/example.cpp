@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <bit>
 
 #include "dbc/dbc_parser.h"
 #include "v2c/v2c_transcoder.h"
@@ -32,7 +33,7 @@ void print_frames(const can::frame_packet& fp, can::v2c_transcoder& transcoder, 
 	std::cout << "New frame_packet (from " << frame_counter << " frames):" << std::endl;
 
 	for (const auto& [ts, frame] : fp) {
-		auto frame_data = *(int64_t*)frame.data;
+		auto frame_data = std::bit_cast<int64_t>(frame.data);
 		auto t = duration_cast<milliseconds>(ts.time_since_epoch()).count() / 1000.0;
 
 		std::cout << std::fixed

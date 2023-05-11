@@ -1,6 +1,7 @@
 #include <numeric>
 #include <unordered_map>
 #include <chrono>
+#include <bit>
 
 #include "can/can_codec.h"
 #include "v2c_transcoder.h"
@@ -161,7 +162,7 @@ void tr_message::assemble(can_time stamp, can_frame frame) {
 		reset_sig_asms();
 
 	uint64_t clumped_val = 0;
-	uint64_t fd = *(const uint64_t*)frame.data;
+	uint64_t fd = std::bit_cast<uint64_t>(frame.data);
 	int64_t mux_val = _mux.has_value() ? _mux->decode(fd) : -1;
 
 	for (auto& sc : _sig_asms)
@@ -222,7 +223,7 @@ bool vin_assembler::decode_some(const can::tr_message& msg, can_frame frame) {
 	if (frame.can_id != _vin_msg_id)
 		return false;
 	auto old_bits = _cbits;
-	uint64_t fd = *(const uint64_t*)frame.data;
+	uint64_t fd = std::bit_cast<uint64_t>(frame.data);
 	for (const auto& sig : msg.signals(fd)) {
 		int chidx = vin_char(sig.name());
 		if (chidx == 0) continue;

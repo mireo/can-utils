@@ -265,5 +265,4 @@ inline void tag_invoke(
 	this_.set_sig_val_type(message_id, sig_name, sig_ext_val_type);
 }
 
-
 } // end namesapce can
