@@ -86,22 +86,21 @@ along with the values that the parser would pass as arguments in that case.
 
 Some keywords have more than one tag_invoke method with different signatures, depending on the context.
 
-- [SG](#sg)
-- [VERSION](#version)
-- [BU](#bu)
-- [BO](#bo)
-- [SG](#sg)
-- [EV](#ev)
-- [ENVVAR_DATA](#envvar_data)
-- [CM](#cm-global)
-- [BA_DEF](#ba_def-int)
-- [BA_DEF_DEF](#ba_def_def)
-- [BA](#ba)
-- [VAL](#val-env)
-- [VAL_TABLE](#val_table)
-- [SIG_VALTYPE](#sig_valtype)
-- [BO_TX_BU](#bo_tx_bu)
-- [SG_MUL_VAL](#sg_mul_val)
+- [VERSION](#version) - Version
+- [BU](#bu) - Nodes
+- [VAL_TABLE](#val_table) - Value Tables
+- [BO](#bo) - Messages
+- [BO_TX_BU](#bo_tx_bu) - Message Transmitters
+- [SG](#sg) - Signals
+- [EV](#ev) - Environment Variables
+- [ENVVAR_DATA](#envvar_data) - Environment Variables Data
+- [SIG_VALTYPE](#sig_valtype) - Signal Types
+- [CM](#cm-global) - Comments
+- [BA_DEF](#ba_def-int) - Attribute Definitions
+- [BA_DEF_DEF](#ba_def_def) - Attribute Defaults
+- [BA](#ba) - Attribute Values
+- [VAL](#val-env) - Value Descriptions
+- [SG_MUL_VAL](#sg_mul_val) - Extended Multiplexing
 
 ---
 
@@ -138,6 +137,28 @@ inline void tag_invoke(
 <details><summary>Parsed as:</summary>
  
    - nodes = { "MASTER", "SLAVE01", "SLAVE02", "Receiver" }
+</details>
+<br/>
+
+---
+
+## VAL_TABLE
+
+```cpp
+inline void tag_invoke(
+	def_val_table_cpo, your_class& this_,
+	std::string table_name, std::vector<std::pair<unsigned, std::string>> val_descs
+) {
+}
+```
+
+#### DBC example:
+```VAL_TABLE_ DriverMode 0 "Off" 1 "On" 2 "Guest";```
+
+<details><summary>Parsed as:</summary>
+
+   - table_name = "DriverMode"
+   - val_descs = { { 0, "Off" }, { 1, "On" }, { 2, "Guest" } }
 </details>
 <br/>
 
@@ -260,6 +281,27 @@ This callback will be invoked only for the multiplexer switch signal. See also: 
 
 ---
 
+## BO_TX_BU
+```cpp
+inline void tag_invoke(
+	def_bo_tx_bu_cpo, your_class& this_,
+	unsigned msg_id, std::vector<std::string> transmitters
+) {
+}
+```
+
+#### DBC example:
+```BO_TX_BU_ 101 "MASTER" "SLAVE";```
+
+<details><summary>Parsed as:</summary>
+
+   - msg_id = 101
+   - transmitters = { "MASTER", "SLAVE" }
+</details>
+<br/>
+
+---
+
 ## EV
 
 ``` cpp
@@ -303,7 +345,7 @@ inline void tag_invoke(
 ```
 
 #### DBC example:
-```ENVVAR_DATA_ EngineSpeed 4;```
+```ENVVAR_DATA_ EngineSpeed: 4;```
 
 <details><summary>Parsed as:</summary>
 
@@ -725,28 +767,6 @@ This callback is only called if the keyword VAL_ is followed by a signal. See al
 
 ---
 
-## VAL_TABLE
-
-```cpp
-inline void tag_invoke(
-	def_val_table_cpo, your_class& this_,
-	std::string table_name, std::vector<std::pair<unsigned, std::string>> val_descs
-) {
-}
-```
-
-#### DBC example:
-```VAL_TABLE_ DriverMode 0 "Off" 1 "On" 2 "Guest";```
-
-<details><summary>Parsed as:</summary>
-
-   - table_name = "DriverMode"
-   - val_descs = { { 0, "Off" }, { 1, "On" }, { 2, "Guest" } }
-</details>
-<br/>
-
----
-
 ## SIG_VALTYPE
 
 ```cpp
@@ -766,27 +786,6 @@ inline void tag_invoke(
    - sg_name = "PowerStateSignal"
    - sg_ext_val_type = 1
      - 0 = integer, 1 = 32-bit IEEE float, 2 = 64-bit IEEE double
-</details>
-<br/>
-
----
-
-## BO_TX_BU
-```cpp
-inline void tag_invoke(
-	def_bo_tx_bu_cpo, your_class& this_,
-	unsigned msg_id, std::vector<std::string> transmitters
-) {
-}
-```
-
-#### DBC example:
-```BO_TX_BU_ 101 "MASTER" "SLAVE";```
-
-<details><summary>Parsed as:</summary>
-
-   - msg_id = 101
-   - transmitters = { "MASTER", "SLAVE" }
 </details>
 <br/>
 

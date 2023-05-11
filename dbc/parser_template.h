@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dbc_parser.h"
+#include "dbc/dbc_parser.h"
 
 class your_class {
 	// The parser invokes callbacks that have access to an instance of this class.
