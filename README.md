@@ -1,5 +1,5 @@
 C++ CAN utilities, including fully compliant CAN DBC C++ parser
-=================================
+===============================================================
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
 Introduction
@@ -7,12 +7,12 @@ Introduction
 
 This repository contains several CAN (Controller Area Network) C++ utilities which could simplify collecting, decoding, transcoding and transferring CAN messages to cloud.
 
-Most of the code in the repository is designed to run on an edge device (for example, embedded telemetry device). However, utilities like CAN DBC parser or CAN frame packet buffer can also be used on server side, thus providing some of the essential tools in the [IOT telemetry](https://iotatlas.net/en/patterns/telemetry/) ecosystems.
+Most of the code in the repository is designed to run on an edge device (for example, an embedded telemetry device). However, utilities like CAN DBC parser or CAN frame packet buffer can also be used on server side, thus providing some of the essential tools in [IOT telemetry](https://iotatlas.net/en/patterns/telemetry/) ecosystems.
 
 Features
 --------
 * [DBC parser](dbc/README.md)
-    * A complete and customizable DBC parser written in C++. Full DBC syntax support for all keywords.
+    * A complete, customizable and efficient DBC parser written in C++ with full DBC syntax support for all keywords.
 * [Vehicle-To-Cloud Transcoder](v2c/README.md)
     * Edge-computing telemetric component that groups, filters, and aggregates CAN signals. Can drastically reduce the amount of data sent from the device over the network.
 Uses the DBC parser to read and define the CAN network.
@@ -31,7 +31,7 @@ The project requires only headers from Boost, so no libraries need to be built.
 You can compile the example as follows:
 
 ```sh
-$ g++ -std=c++20 example\example.cpp dbc\dbc_parser.cpp v2c\v2c_transcoder.cpp -I . -o can_example
+$ g++ -std=c++20 example/example.cpp dbc/dbc_parser.cpp v2c/v2c_transcoder.cpp -I . -o can_example
 ```
 
 `can-utils` has been tested with Clang, GCC and MSVC on Windows and Linux. It requires C++20.
@@ -123,7 +123,7 @@ V2C is modeled as a node in the CAN network. It reads CAN frames as input, aggre
 
 To use it, initialize `v2c_transcoder` and then call its `transcode(t, frame)` method with frames read from the CAN socket.
 
-`transcode()` will periodically return a `frame_packet` containing the aggregated `can_frames`, ready to be sent over the network.
+`transcode()` periodically returns a `frame_packet` containing the aggregated `can_frames`, ready to be sent over the network.
 
 ```cpp
 can::v2c_transcoder transcoder;
@@ -159,6 +159,13 @@ BA_ "AggType" SG_  6 SmoothBattCurrent "AVG";
 
 A more in-depth explanation can be found [here](v2c/README.md).
 
+Contributing
+------------
+
+When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+
+You may merge a Pull Request once you have the sign-off from other developers, or you may request the reviewer to merge it for you.
+
 License
 -------
 
@@ -178,8 +185,10 @@ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUEN
 GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Contact us
+Credits
 ---------- 
+
+Maintained and authored by [Mireo](https://www.mireo.com/spacetime).
 
 <p align="center">
 <a href="https://www.mireo.com/spacetime"><img height="200" alt="Mireo" src="https://www.mireo.com/img/assets/mireo-logo.svg"></img></a>
