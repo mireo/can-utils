@@ -600,7 +600,7 @@ static const parse_rv parse_sig_valtype_(std::string_view rng, interpreter& ipt)
 
 	const auto sig_valtype_ = x3::omit[x3::lexeme[x3::lit("SIG_VALTYPE_") >> +x3::blank]] >>
 		x3::attr(true)[to(has_sect)] >> x3::uint_[to(msg_id)] >> name_[to(sig_name)] >>
-		od(':') >> &x3::char_("0-3") >> x3::uint_[to(sig_ext_val_type)] >> od(';') >> end_cmd_; //TODO: doesn't fit the Vector spec, but it's like this in all samples and DBCX3.cpp
+		od(':') >> &x3::char_("0-3") >> x3::uint_[to(sig_ext_val_type)] >> od(';') >> end_cmd_;
 
 	for (auto iter = rng.begin(); iter != rng.end(); has_sect = false) {
 		if (!phrase_parse(iter, rng.end(), sig_valtype_, skipper_))

@@ -21,7 +21,7 @@ auto fp = transcoder.transcode(std::chrono::system_clock::now(), frame);
 
 The result `fp` is of the type `can::frame_packet`, defined in [frame_packet.h](/can/frame_packet.h), and is a serialized list of CAN frames with timestamp information.
 
-The frame packet is unless more than `V2CTxTime` milliseconds have passed since the last transmission.
+The frame packet is not sent unless more than `V2CTxTime` milliseconds have passed since the last transmission.
 
 ## frame_packet interface
 
@@ -47,7 +47,7 @@ const uint8_t* data_end() const {
 }
 
 std::vector<uint8_t> release() {
-		return std::move(_buff);
+	return std::move(_buff);
 }
 ```
 
@@ -63,7 +63,7 @@ can::frame_packet fp(std::move(buffer));
 
 # Configuration
 
-All V2C configuration is done in the DBC input file, in DBC syntax, using attributes and environment variables.
+All V2C configuration is in the DBC input file, in DBC syntax, using attributes and environment variables.
 
 ## Transmission
 
@@ -137,8 +137,6 @@ The aggregation is done in time windows that match the group's sending period. N
 For `example.dbc` described above, `transcoder.transcode(ts, frame)` returns a new `frame_packet` every 2000 ms
 containing up to four `GPS` groups and up to four `Energy` groups, in chronological order.
 Each group contains an aggregated `can_frame` for each message in that group.
-
-See [example README](example/README.md) for a detailed look at output timestamps.
 
 ## Filtering
 
