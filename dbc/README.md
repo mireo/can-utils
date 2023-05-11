@@ -35,6 +35,8 @@ inline void tag_invoke(
 }
 ```
 
+It can either be declared as a friend method of `your_class`, or as a free inline function inside the `can` namespace.
+
 ## Customization Example
 
 The following example shows how to create a custom class that stores the names of signals for each message id using the parsed DBC data.
@@ -45,23 +47,17 @@ To do this, we need to implement only one callback: `def_sg_cpo`. It has access 
 
 struct custom_dbc {
 	std::map<uint32_t, std::vector<std::string>> sigs; // map of message id to vector of signal names
-};
 
-namespace can {
-
-// tag_invokes must be in the same namespace as can::dbc_parser 
-
-inline void tag_invoke(
-	def_sg_cpo, custom_dbc& this_,
-	uint32_t msg_id, std::optional<unsigned> sg_mux_switch_val, std::string sg_name,
-	unsigned sg_start_bit, unsigned sg_size, char sg_byte_order, char sg_sign,
-	double sg_factor, double sg_offset, double sg_min, double sg_max,
-	std::string sg_unit, std::vector<size_t> receiver_ords
-) {
-	this_.sigs[msg_id].push_back(sg_name); // add the signal name to the vector for the message id
+	friend void tag_invoke(
+		can::def_sg_cpo, custom_dbc& this_,
+		uint32_t msg_id, std::optional<unsigned> sg_mux_switch_val, std::string sg_name,
+		unsigned sg_start_bit, unsigned sg_size, char sg_byte_order, char sg_sign,
+		double sg_factor, double sg_offset, double sg_min, double sg_max,
+		std::string sg_unit, std::vector<size_t> receiver_ords
+	) {
+		this_.sigs[msg_id].push_back(sg_name); // add the signal name to the vector for the message id
+	}
 }
-
-} // namespace can
 ```
 
 If you don't need to use some of the callbacks, you can omit them as shown in the example above.
