@@ -121,9 +121,9 @@ public:
 		return from_value(_value + rhs._value);
 	}
 
-	sig_calc_type<T> idivround(uint64_t d) const {
+	sig_calc_type<T> idivround(int64_t d) const {
 		if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>)
-			return from_value(T((_value < 0) != (d < 0) ? (_value - d / 2) / d : (_value + d / 2) / d));
+			return from_value(T((_value < 0) ? (_value - d / 2) / d : (_value + d / 2) / d));
 		else
 			return from_value(_value / d);
 	}
